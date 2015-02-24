@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="77fc88cc-f40f-4e44-84d7-328cff262116">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" fontName="Times New Roman" fontSize="50" isBold="true" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#736343" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<style name="Row" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#E6DAC3"/>
+		</conditionalStyle>
+	</style>
+	<queryString>
+		<![CDATA[select (@row:=@row+1) AS ROW,hlth.`HEALTH_CARE_TYPE`,count(*) as no_of_patients,hlth.`CHARGES` as rate, (hlth.`CHARGES` * count(*) ) as cash,patient.`ZAKAT` as zakat, 0 as Donation, 0 as Other, ((hlth.`CHARGES` * count(*) )+patient.`ZAKAT`) as Total,act.`VISIT_DATE` as Date
+from 
+healthcare hlth,activities act ,patient_info patient,(SELECT @row := 0) r 
+where hlth.`HEALTH_CARE_ID` = act.`HEALTH_CARE_ID`
+and act.`PATIENT_ID` = patient.`PATIENT_ID`
+group by hlth.`HEALTH_CARE_TYPE`
+ORDER BY ROW Asc]]>
+	</queryString>
+	<field name="ROW" class="java.lang.Long"/>
+	<field name="HEALTH_CARE_TYPE" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="no_of_patients" class="java.lang.Long"/>
+	<field name="rate" class="java.lang.Integer"/>
+	<field name="cash" class="java.lang.Long"/>
+	<field name="zakat" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="Donation" class="java.lang.Long"/>
+	<field name="Other" class="java.lang.Long"/>
+	<field name="Total" class="java.lang.Long"/>
+	<field name="Date" class="java.sql.Date"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="136" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="4" y="0" width="299" height="38" uuid="f022f663-820f-4b6b-813c-347dde61c82c"/>
+				<textElement verticalAlignment="Middle">
+					<font size="20" pdfFontName="Times-Roman"/>
+				</textElement>
+				<text><![CDATA[MEDICARE CENTER]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="4" y="38" width="375" height="19" uuid="39629189-90f6-4a60-9b4b-7ae49b8b28d5"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[KHOKAR ROAD, NEAR MASOOD SHAH CHOWK, BADAMI BAGH LAHORE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="4" y="57" width="375" height="19" uuid="57eda060-4824-495a-bde0-fd28ab202aec"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Tel: 042-37615005, 042-36261360]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="561" y="38" width="44" height="20" uuid="17b7d97e-99d6-477e-8598-c66b2e2855e5"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DATE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="561" y="76" width="44" height="20" uuid="20a6cd07-0c06-41e6-bcb1-fe9c8a3529dc"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[SHIFT]]></text>
+			</staticText>
+			<line>
+				<reportElement x="623" y="58" width="161" height="1" uuid="98a11d93-522e-4369-aec5-2d160b83c557"/>
+			</line>
+			<line>
+				<reportElement x="623" y="95" width="161" height="1" uuid="04ff52a6-7af4-4192-af80-842c29958320"/>
+			</line>
+			<textField>
+				<reportElement x="623" y="37" width="100" height="20" uuid="c4550ca2-892d-4336-abf4-6adbbf9ec46e"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{Date}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="409" y="0" width="139" height="95" uuid="62a7fc26-407a-4d2e-ae3f-14aa39135352"/>
+				<imageExpression><![CDATA["F:\\NetBeansProjs\\MedicareTrustCenter\\src\\resources\\medicareTrust_Center.png"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="16" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="15" width="802" height="1" uuid="141ec027-1dbd-452b-84ec-1ec2b15bea47"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="Column header" x="0" y="0" width="89" height="15" forecolor="#736343" uuid="11af34fa-25ea-482a-85ba-5ea95b022b1b"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[ROW]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="89" y="0" width="89" height="15" forecolor="#736343" uuid="feb7e6da-6e71-43d1-9dba-812c9c541db4"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Procedure]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="178" y="0" width="89" height="15" forecolor="#736343" uuid="5ddd73c2-0808-4d64-91d8-542e863feb9b"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[No Of Patients]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="267" y="0" width="89" height="15" forecolor="#736343" uuid="50df97f2-38a3-4ca7-a4ac-fb3a46337197"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[rate]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="356" y="0" width="89" height="15" forecolor="#736343" uuid="977604ec-a94b-43ca-8c18-60d84b06e192"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[cash]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="445" y="0" width="89" height="15" forecolor="#736343" uuid="80388435-7886-45cd-89c3-c3f075cc04e9"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[zakat]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="534" y="0" width="89" height="15" forecolor="#736343" uuid="3f82c703-6c95-4608-8b43-8fa4d87e49cf"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Donation]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="623" y="0" width="89" height="15" forecolor="#736343" uuid="724fe17b-bd8f-4721-92e0-71680a0fed70"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Other]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="712" y="0" width="89" height="15" forecolor="#736343" uuid="c7854202-9587-4358-a05e-e1e71485d291"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="802" height="15" uuid="7e393095-05e3-4a5c-b8e8-80ad8651c3b9"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="0" y="0" width="89" height="15" uuid="b51192de-cf2d-4a6f-b658-932d9984fd01"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{ROW}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="89" y="0" width="89" height="15" uuid="29163a25-2e4c-4272-b66c-fe5af0f38f8b"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{HEALTH_CARE_TYPE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="178" y="0" width="89" height="15" uuid="ac65d565-a166-46c6-bb80-25b72e9c53f9"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{no_of_patients}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="267" y="0" width="89" height="15" uuid="bc5573d2-dee8-4c3c-b50e-28e6b3349f3a"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{rate}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="356" y="0" width="89" height="15" uuid="f0995d8e-9a31-4667-9b51-93c34e4c9fb5"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{cash}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="445" y="0" width="89" height="15" uuid="c742e75f-0696-46d5-959a-a427b093baef"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{zakat}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="534" y="0" width="89" height="15" uuid="5fc3fb98-8ba7-4c77-ba56-ae85878ba0bc"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[""+$F{Donation}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="623" y="0" width="89" height="15" uuid="b4371d5e-0786-4fa1-a49d-5e26d725b6f3"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[""+$F{Other}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="712" y="0" width="89" height="15" uuid="a08f3908-2caf-4f30-905f-17957d43fedc"/>
+					<textElement textAlignment="Center"/>
+					<textFieldExpression><![CDATA[$F{Total}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="6" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="3" width="802" height="1" uuid="a48ca597-0055-4eeb-a24c-cb1b9489f97c"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="-21" y="1" width="843" height="24" forecolor="#D0B48E" backcolor="#F2EBDF" uuid="617b986f-f782-4d4a-bf7a-47b3a17d481e"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="783" y="1" width="40" height="20" forecolor="#736343" uuid="5318f863-3d38-43b6-9a75-4101d8aa733e"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="703" y="1" width="80" height="20" forecolor="#736343" uuid="9fa836af-4d87-4ea2-aeda-ff7ddf1ba3fe"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement style="Column header" x="22" y="1" width="197" height="20" forecolor="#736343" uuid="e700e69a-b7db-4162-9679-6b8a2920b426"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
