@@ -286,7 +286,7 @@
                       </Border>
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    dataEmcy,headerEmcy&#xa;)" type="code"/>
+                      <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    dataDentist,headerDentist&#xa;)" type="code"/>
                     </Property>
                   </Properties>
                 </Component>
@@ -339,7 +339,7 @@
                       </Border>
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    dataInDoorPatient,headerInDoorPatient&#xa;)" type="code"/>
+                      <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    dataEmergy,headerEmergy&#xa;)" type="code"/>
                     </Property>
                   </Properties>
                 </Component>
@@ -392,7 +392,7 @@
                       </Border>
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    dataOthers,headerOthers&#xa;)" type="code"/>
+                      <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    dataLabTest,headerLabTest&#xa;)" type="code"/>
                     </Property>
                   </Properties>
                 </Component>

@@ -8,6 +8,7 @@ package Views;
 import DatabaseAccessLayer.DAO;
 import Models.PatientInfoModel;
 import java.util.Properties;
+import java.util.Vector;
 import javax.swing.JOptionPane;
 
 /**
@@ -19,17 +20,15 @@ public class Registration extends javax.swing.JFrame {
     /**
      * Creates new form Registration
      */
-   
-   private Login obj;
+    private Login obj;
     private Properties bProperties = null;
     private String selectedSvcType;
+
     public Registration() {
         initComponents();
-      
+        this.pack();
+
     }
-    
-    
- 
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -47,8 +46,6 @@ public class Registration extends javax.swing.JFrame {
         lastName = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         NIC = new javax.swing.JTextField();
-        zaka = new javax.swing.JLabel();
-        zakat = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -69,10 +66,6 @@ public class Registration extends javax.swing.JFrame {
 
         NIC.setToolTipText("3520182246339");
 
-        zaka.setText("Zakat: ");
-
-        zakat.setToolTipText("Zakat Recieved");
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -87,15 +80,9 @@ public class Registration extends javax.swing.JFrame {
                     .addComponent(NIC, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
                     .addComponent(firstName))
                 .addGap(16, 16, 16)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lastName, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(zaka)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(zakat, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lastName, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(23, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -109,8 +96,6 @@ public class Registration extends javax.swing.JFrame {
                     .addComponent(jLabel2))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(zakat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(zaka)
                     .addComponent(NIC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3))
                 .addContainerGap(35, Short.MAX_VALUE))
@@ -199,48 +184,52 @@ public class Registration extends javax.swing.JFrame {
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
         // TODO add your handling code here:
-        if ( firstName.getText().equals("")){
-                JOptionPane.showMessageDialog(Registration.this, "Enter First Name");  
-                return; // or throw an Exception
+        if (firstName.getText().equals("")) {
+            JOptionPane.showMessageDialog(Registration.this, "Enter First Name");
+            return; // or throw an Exception
         }
-        if ( lastName.getText().equals("")){
-                JOptionPane.showMessageDialog(Registration.this, "Enter Last Name");  
-                return; // or throw an Exception
+        if (lastName.getText().equals("")) {
+            JOptionPane.showMessageDialog(Registration.this, "Enter Last Name");
+            return; // or throw an Exception
         }
-        
-        if ( NIC.getText().equals("")){
-                JOptionPane.showMessageDialog(Registration.this, "Enter NIC Number");  
-                return; // or throw an Exception
+
+        if (NIC.getText().equals("")) {
+            JOptionPane.showMessageDialog(Registration.this, "Enter NIC Number");
+            return; // or throw an Exception
         }
-                // normal flow
-         long nic=0;
-         int zak=0;
+        // normal flow
+        long nic = 0;
+
         try {
-            nic =Long.parseLong(NIC.getText());
-        
-            zak= Integer.parseInt(zakat.getText());
-            
+            nic = Long.parseLong(NIC.getText());
+
         } catch (NumberFormatException e) {
             JOptionPane.showConfirmDialog(null, "Please enter numbers only ", "Caution", JOptionPane.CANCEL_OPTION);
             return;
         }
-        
-            
-        
-        
-       
-        PatientInfoModel newPatient = new PatientInfoModel(nic, firstName.getText(), lastName.getText(), zak);
-        boolean patientSaved = DAO.getInstance().insertPerson(newPatient);
-        if(patientSaved)
-        {
-            this.dispose();
-            new UserMgmt().setVisible(true);
+
+        PatientInfoModel newPatient = new PatientInfoModel(nic, firstName.getText(), lastName.getText());
+        boolean patientSaved = DAO.getInstance().insertPatient(newPatient);
+        int patientId = 0;
+        if (patientSaved) {
+            Vector<Vector<String>> data = DAO.getInstance().getAllPatient();
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(i).get(1).equals(firstName.getText()) && data.get(i).get(2).equals(lastName.getText())) {
+                    patientId = Integer.parseInt(data.get(i).get(0));
+                }
+            }
+
+            if (patientId != 0) {
+                this.dispose();
+                new AssignServices(firstName.getText() + " " + lastName.getText(), patientId).setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(null, "Cannot Find Patient. Contact Administrator");
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Cannot Save Patient. Contact Administrator");
         }
-       else
-       {
-            JOptionPane.showMessageDialog(null,"Cannot Save Patient. Contact Administrator");
-       }
-        
+
     }//GEN-LAST:event_saveBtnActionPerformed
 
     private void cancelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelBtnActionPerformed
@@ -266,7 +255,5 @@ public class Registration extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JTextField lastName;
     private javax.swing.JButton saveBtn;
-    private javax.swing.JLabel zaka;
-    private javax.swing.JTextField zakat;
     // End of variables declaration//GEN-END:variables
 }

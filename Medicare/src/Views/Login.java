@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 //login test
-
 package Views;
 
 import DatabaseAccessLayer.DAO;
@@ -22,16 +21,15 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
         initComponents();
+        this.pack();
     }
-    
-    public boolean checkDatabaseConnection()
-    {
+
+    public boolean checkDatabaseConnection() {
         DAO.getInstance().DoConnect();
-        if(!DAO.getInstance().isConnectionFlag())
-        {
-          return false;
+        if (!DAO.getInstance().isConnectionFlag()) {
+            return false;
         }
-        
+
         return true;
     }
 
@@ -165,26 +163,22 @@ public class Login extends javax.swing.JFrame {
 
     private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
         // TODO add your handling code here:
-        
-        if(!checkDatabaseConnection())
-        {
-            JOptionPane.showMessageDialog(Login.this, "Canot Connect To Database");  
+
+        if (!checkDatabaseConnection()) {
+            JOptionPane.showMessageDialog(Login.this, "Canot Connect To Database");
             return;
         }
-        
-        
-        String user=username.getText();
 
-        String pwd= new String (password.getPassword());
-        
+        String user = username.getText();
+
+        String pwd = new String(password.getPassword());
+
         LoginModel loginModel = new LoginModel(user, pwd);
         boolean loginFlag = DAO.getInstance().checkLogin(loginModel);
-        if(loginFlag) {
+        if (loginFlag) {
             this.dispose();
             new UserMgmt().setVisible(true);
-        }
-        else
-        {
+        } else {
             JOptionPane.showMessageDialog(this, "Incorrect Username or Password!");
         }
 

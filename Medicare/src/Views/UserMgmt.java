@@ -20,7 +20,6 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 
-
 /**
  *
  * @author Usama Mahmood
@@ -30,48 +29,47 @@ public class UserMgmt extends javax.swing.JFrame {
     /**
      * Creates new form UserMgmt
      */
-     private Vector<Vector<String>> data; //used for data from database
+    private Vector<Vector<String>> data; //used for data from database
     private Vector<String> header; //used to store data header
-   
-    private Vector<Vector<String>> dataEmcy; //used for data from database
-    private Vector<String> headerEmcy; //used to store data header
-    
-    private Vector<Vector<String>> dataInDoorPatient; //used for data from database
-    private Vector<String> headerInDoorPatient; //used to store data header
-    
-    private Vector<Vector<String>> dataOthers; //used for data from database
-    private Vector<String> headerOthers; //used to store data header
-    
+
+    private Vector<Vector<String>> dataDentist; //used for data from database
+    private Vector<String> headerDentist; //used to store data header
+
+    private Vector<Vector<String>> dataEmergy; //used for data from database
+    private Vector<String> headerEmergy; //used to store data header
+
+    private Vector<Vector<String>> dataLabTest; //used for data from database
+    private Vector<String> headerLabTest; //used to store data header
+
     public UserMgmt() {
-        
-        data = DAO.getInstance().getHealthCareServicesData();
+
+        data = DAO.getInstance().getServicesData("SERVICES");
         header = new Vector<String>();
-        header.add("HealthCare Type"); //service Type
+        header.add("Services"); //service Type
         header.add("Charges"); // charges
-        
-        dataEmcy = DAO.getInstance().getEmergencyServicesData();
-        headerEmcy = new Vector<String>();
-        headerEmcy.add("Emergency Type"); //service Type
-        headerEmcy.add("Charges"); // charges
-        
-         dataInDoorPatient = DAO.getInstance().getIndoorPatientServicesData();
-        headerInDoorPatient = new Vector<String>();
-        headerInDoorPatient.add("Indoor Patient Services"); //service Type
-        headerInDoorPatient.add("Charges"); // charges
-        
-        dataOthers = DAO.getInstance().getOtherServicesData();
-        headerOthers = new Vector<String>();
-        headerOthers.add("Other Services"); //service Type
-        headerOthers.add("Charges"); // chargesgetOtherServicesData
-        
-        
-        
+
+        dataDentist = DAO.getInstance().getServicesData("DENTISTRY");
+        headerDentist = new Vector<String>();
+        headerDentist.add("Dentistry"); //service Type
+        headerDentist.add("Charges"); // charges
+
+        dataEmergy = DAO.getInstance().getServicesData("EMERGENCY");
+        headerEmergy = new Vector<String>();
+        headerEmergy.add("Emergency"); //service Type
+        headerEmergy.add("Charges"); // charges
+
+        dataLabTest = DAO.getInstance().getServicesData("LAB_TEST");
+        headerLabTest = new Vector<String>();
+        headerLabTest.add("Lab Test"); //service Type
+        headerLabTest.add("Charges"); // chargesgetOtherServicesData
+
         initComponents();
         tabbedPane.setTitleAt(0, "Patients Info");
-        tabbedPane.setTitleAt(1, "HealthCare Services");        
-        tabbedPane.setTitleAt(2, "Emergency Services");
-        tabbedPane.setTitleAt(3, "In-door Patients");
-        tabbedPane.setTitleAt(4, "Others");
+        tabbedPane.setTitleAt(1, "Services");
+        tabbedPane.setTitleAt(2, "Dentistry");
+        tabbedPane.setTitleAt(3, "Emergency");
+        tabbedPane.setTitleAt(4, "Lab Tests");
+        this.pack();
     }
 
     /**
@@ -218,7 +216,7 @@ public class UserMgmt extends javax.swing.JFrame {
 
         emergencySvc.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         emergencySvc.setModel(new javax.swing.table.DefaultTableModel(
-            dataEmcy,headerEmcy
+            dataDentist,headerDentist
         ));
         jScrollPane2.setViewportView(emergencySvc);
 
@@ -243,7 +241,7 @@ public class UserMgmt extends javax.swing.JFrame {
 
         indoorPatients.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         indoorPatients.setModel(new javax.swing.table.DefaultTableModel(
-            dataInDoorPatient,headerInDoorPatient
+            dataEmergy,headerEmergy
         ));
         jScrollPane3.setViewportView(indoorPatients);
 
@@ -268,7 +266,7 @@ public class UserMgmt extends javax.swing.JFrame {
 
         others.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         others.setModel(new javax.swing.table.DefaultTableModel(
-            dataOthers,headerOthers
+            dataLabTest,headerLabTest
         ));
         jScrollPane4.setViewportView(others);
 
@@ -317,7 +315,7 @@ public class UserMgmt extends javax.swing.JFrame {
 
     private void newPatientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newPatientActionPerformed
         // TODO add your handling code here:
-        
+
         this.dispose();
         new Registration().setVisible(true);
     }//GEN-LAST:event_newPatientActionPerformed
@@ -329,27 +327,25 @@ public class UserMgmt extends javax.swing.JFrame {
     }//GEN-LAST:event_repeatPatientActionPerformed
 
     private void reportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reportBtnActionPerformed
-         try {
-             // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
             InputStream bdl = this.getClass().getResourceAsStream("/reports/DayEndSummary.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(bdl);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport,new HashMap(), new JRResultSetDataSource(DAO.getInstance().fetchDataSource()));
-            
-            
-         
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, new HashMap(), new JRResultSetDataSource(DAO.getInstance().fetchDataSource()));
+
             JasperExportManager.exportReportToPdfFile(jasperPrint, "DayEndReport.pdf");
-            JOptionPane.showMessageDialog(null,"Report Executed Successfully");
-         } catch (JRException ex) {
-             Logger.getLogger(UserMgmt.class.getName()).log(Level.SEVERE, null, ex);
-             
-              StringBuilder sb = new StringBuilder(ex.toString());
-                for (StackTraceElement ste : ex.getStackTrace()) {
-                    sb.append("\n\tat ");
-                    sb.append(ste);
-                }
-                String trace = sb.toString();
-            JOptionPane.showMessageDialog(null, trace,"Message", JOptionPane.INFORMATION_MESSAGE);
-         }
+            JOptionPane.showMessageDialog(null, "Report Executed Successfully");
+        } catch (JRException ex) {
+            Logger.getLogger(UserMgmt.class.getName()).log(Level.SEVERE, null, ex);
+
+            StringBuilder sb = new StringBuilder(ex.toString());
+            for (StackTraceElement ste : ex.getStackTrace()) {
+                sb.append("\n\tat ");
+                sb.append(ste);
+            }
+            String trace = sb.toString();
+            JOptionPane.showMessageDialog(null, trace, "Message", JOptionPane.INFORMATION_MESSAGE);
+        }
     }//GEN-LAST:event_reportBtnActionPerformed
 
     /**

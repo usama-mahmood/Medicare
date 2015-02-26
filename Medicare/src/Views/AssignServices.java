@@ -7,13 +7,21 @@ package Views;
 
 import DatabaseAccessLayer.DAO;
 import Models.AddServicesModel;
+import Models.ButtonColumn;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Vector;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import org.apache.derby.client.am.ResultSet;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -24,154 +32,118 @@ public class AssignServices extends javax.swing.JFrame {
     /**
      * Creates new form AssignServices
      */
+    private Vector<Vector<String>> data; //used for Added data from database
+    private Vector<String> header; //used to store data header
+    private Vector<Vector<String>> addedServiceID; //All service ID's of added services
     String selectedPatientName;
     int selectedPatientID;
     int selectedPatientZakat;
-    private String selectedHealthType;
-    private String selectedEmergencyType;
-    private String selectedInPatientType;
-    private String selectedOtherType;
-    int healthCareId;
-    int emergyId;
-    int inPatientId;
-    int otherServiceId;
-    int labTestId;
-     Statement stmt = DAO.getInstance().getStmt();
-              Connection con = DAO.getInstance().getCon();
-                  
-    public AssignServices(String patienName,int patientID) {
+    private String selectedService;
+    private String selectedDentistry;
+    private String selectedEmergency;
+    private String selectedLabTest;
+    int zakaRecieved = 0;
+    Boolean chooseServiceFlag = false;
+    Statement stmt = DAO.getInstance().getStmt();
+    Connection con = DAO.getInstance().getCon();
+
+    public AssignServices(String patienName, int patientID) {
+        header = new Vector<String>();
+        addedServiceID = new Vector<Vector<String>>();
+        data = new Vector<Vector<String>>();
+        header.add("Service"); //service Type
+        header.add("Charges"); // charges
+        header.add("Remove"); // charges
         this.selectedPatientName = patienName;
         this.selectedPatientID = patientID;
         initComponents();
         patientName.setText(patienName);
-        fetchZakat();
-        zakatLabel.setText(selectedPatientZakat+"");
-        initializeHealthCareTypeDropdown();
-        initializeEmergencyDropdown();
-        initializeInPatientDropdown();
-        initializeOtherServicesDropdown();
-        
-    }
-    
-     public void initializeHealthCareTypeDropdown()
-    {
-        String [] healthCareTypes = DAO.getInstance().getHealthCareTypes();
+        initializeAllDropdown();
 
-        for(int i = 0;i<healthCareTypes.length;i++)
-        {
-           healthCareServices.addItem(healthCareTypes[i]); 
-        }
-    }
-     
-      public void initializeEmergencyDropdown()
-    {
-        String [] emerTypes = DAO.getInstance().getEmergecyTypes();
+        addServicePanel.setVisible(false);
+        this.pack();
 
-        for(int i = 0;i<emerTypes.length;i++)
-        {
-           emergency.addItem(emerTypes[i]); 
-        }
     }
-    
-     public void initializeInPatientDropdown()
-    {
-        String [] inPatientTypes = DAO.getInstance().getInPatientTypes();
 
-        for(int i = 0;i<inPatientTypes.length;i++)
-        {
-           inPatient.addItem(inPatientTypes[i]); 
-        }
-    }
-        public void initializeOtherServicesDropdown()
-    {
-        String [] othrService = DAO.getInstance().getOtherServices();
+    public boolean validateZakat() {
 
-        for(int i = 0;i<othrService.length;i++)
-        {
-           otherService.addItem(othrService[i]); 
+        try {
+
+            zakaRecieved = Integer.parseInt(zakat.getText());
+            return true;
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showConfirmDialog(null, "Please enter numbers only In Zakat", "Caution", JOptionPane.CANCEL_OPTION);
+            return false;
+        }
+
+    }
+
+    public void initializeAllDropdown() {
+        Vector<Vector<String>> service = DAO.getInstance().getServicesData("SERVICES");
+        Vector<Vector<String>> dentist = DAO.getInstance().getServicesData("DENTISTRY");
+        Vector<Vector<String>> emgncy = DAO.getInstance().getServicesData("EMERGENCY");
+        Vector<Vector<String>> lab_test = DAO.getInstance().getServicesData("LAB_TEST");
+
+        for (int i = 0; i < service.size(); i++) {
+            services.addItem(service.get(i).get(0));
+        }
+
+        for (int i = 0; i < dentist.size(); i++) {
+            dentistry.addItem(dentist.get(i).get(0));
+        }
+
+        for (int i = 0; i < emgncy.size(); i++) {
+            emergy.addItem(emgncy.get(i).get(0));
+        }
+        for (int i = 0; i < lab_test.size(); i++) {
+            labTest.addItem(lab_test.get(i).get(0));
         }
     }
-        
-     public boolean validateHealthServiceCombo()
-        {
-              try{//find the health care id against selected service and save it in peron info 
-             
-                  stmt = con.createStatement();   
-             String sql = "select HEALTH_CARE_ID from HEALTHCARE where HEALTH_CARE_TYPE = '"+selectedHealthType+"'";
-                  java.sql.ResultSet rs= stmt.executeQuery(sql);
-            rs.next();
-            healthCareId= rs.getInt("HEALTH_CARE_ID");
-            return true;
-         }catch(SQLException e)
-         {
-             //JOptionPane.showMessageDialog(null,"Choose A Valid Service ");
-             return false;
-         }
+
+    public boolean validateServicesCombo() {
+        Vector<Vector<String>> service = DAO.getInstance().getServicesData("SERVICES");
+        for (int i = 0; i < service.size(); i++) {
+            if (service.get(i).get(0).equals(selectedService)) {
+                return true;
+
+            }
         }
-     public boolean validateEmergencyServiceCombo()
-        {
-              try{//find the health care id against selected service and save it in peron info 
-             
-                  stmt = con.createStatement();   
-             String sql = "select EMER_SVC_ID from emer_svcs where EMER_TYPE = '"+selectedEmergencyType+"'";
-                  java.sql.ResultSet rs= stmt.executeQuery(sql);
-            rs.next();
-            emergyId= rs.getInt("EMER_SVC_ID");
-            return true;
-         }catch(SQLException e)
-         {
-             //JOptionPane.showMessageDialog(null,"Choose A Valid Service ");
-             return false;
-         }
+        return false;
+    }
+
+    public boolean validateDentistryCombo() {
+        Vector<Vector<String>> dentist = DAO.getInstance().getServicesData("DENTISTRY");
+        for (int i = 0; i < dentist.size(); i++) {
+            if (dentist.get(i).get(0).equals(selectedDentistry)) {
+                return true;
+
+            }
         }
-     public boolean validateInPatientCombo()
-        {
-              try{//find the health care id against selected service and save it in peron info 
-             
-                  stmt = con.createStatement();   
-             String sql = "select INDOOR_PATIENT_ID from indoor_patient where PATIENT_CARE_TYPE = '"+selectedInPatientType+"'";
-                  java.sql.ResultSet rs= stmt.executeQuery(sql);
-            rs.next();
-            inPatientId= rs.getInt("INDOOR_PATIENT_ID");
-            return true;
-         }catch(SQLException e)
-         {
-             //JOptionPane.showMessageDialog(null,"Choose A Valid Service ");
-             return false;
-         }
+        return false;
+    }
+
+    public boolean validateEmergencyCombo() {
+        Vector<Vector<String>> emgncy = DAO.getInstance().getServicesData("EMERGENCY");
+        for (int i = 0; i < emgncy.size(); i++) {
+            if (emgncy.get(i).get(0).equals(selectedEmergency)) {
+                return true;
+
+            }
         }
-     public boolean validateOtherServicesCombo()
-        {
-              try{//find the health care id against selected service and save it in peron info 
-             
-                  stmt = con.createStatement();   
-             String sql = "select SERVICE_ID from other_services where SERVICE_TYPE = '"+selectedOtherType+"'";
-                  java.sql.ResultSet rs= stmt.executeQuery(sql);
-            rs.next();
-            otherServiceId = rs.getInt("SERVICE_ID");
-            return true;
-         }catch(SQLException e)
-         {
-             //JOptionPane.showMessageDialog(null,"Choose A Valid Service ");
-             return false;
-         }
+        return false;
+    }
+
+    public boolean validateLabTestCombo() {
+        Vector<Vector<String>> lab_test = DAO.getInstance().getServicesData("LAB_TEST");
+        for (int i = 0; i < lab_test.size(); i++) {
+            if (lab_test.get(i).get(0).equals(selectedLabTest)) {
+                return true;
+
+            }
         }
-     public boolean fetchZakat()
-        {
-              try{//find the health care id against selected service and save it in peron info 
-             
-                  stmt = con.createStatement();   
-             String sql = "select zakat from patient_info where PATIENT_ID = '"+this.selectedPatientID+"'";
-                  java.sql.ResultSet rs= stmt.executeQuery(sql);
-            rs.next();
-            selectedPatientZakat = rs.getInt("zakat");
-            return true;
-         }catch(SQLException e)
-         {
-             //JOptionPane.showMessageDialog(null,"Choose A Valid Service ");
-             return false;
-         }
-        }
+        return false;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -187,19 +159,27 @@ public class AssignServices extends javax.swing.JFrame {
         patientName = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        healthCareServices = new javax.swing.JComboBox();
+        services = new javax.swing.JComboBox();
         jLabel5 = new javax.swing.JLabel();
-        emergency = new javax.swing.JComboBox();
+        dentistry = new javax.swing.JComboBox();
         jLabel = new javax.swing.JLabel();
-        inPatient = new javax.swing.JComboBox();
+        emergy = new javax.swing.JComboBox();
         jLabel9 = new javax.swing.JLabel();
-        otherService = new javax.swing.JComboBox();
+        labTest = new javax.swing.JComboBox();
         jLabel10 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         save = new javax.swing.JButton();
-        zakatLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         datePicker = new org.jdesktop.swingx.JXDatePicker();
+        zakat = new javax.swing.JTextField();
+        addServices = new javax.swing.JButton();
+        addDentistry = new javax.swing.JButton();
+        addEmegy = new javax.swing.JButton();
+        addLabTest = new javax.swing.JButton();
+        addServicePanel = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        serviceTable = new javax.swing.JTable();
+        jLabel7 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -213,40 +193,40 @@ public class AssignServices extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel2.setText("Choose Services");
 
-        jLabel4.setText("HealthCare Services");
+        jLabel4.setText("Services");
 
-        healthCareServices.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Choose Health Care Service" }));
-        healthCareServices.addActionListener(new java.awt.event.ActionListener() {
+        services.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Choose Services" }));
+        services.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                healthCareServicesActionPerformed(evt);
+                servicesActionPerformed(evt);
             }
         });
 
-        jLabel5.setText("Emergency Services");
+        jLabel5.setText("Dentistry");
 
-        emergency.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Choose EmerGency Service" }));
-        emergency.addActionListener(new java.awt.event.ActionListener() {
+        dentistry.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Choose Dentistry Services" }));
+        dentistry.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                emergencyActionPerformed(evt);
+                dentistryActionPerformed(evt);
             }
         });
 
-        jLabel.setText("In Patient Services");
+        jLabel.setText("Emergency");
 
-        inPatient.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Choose In-door Patient Service" }));
-        inPatient.addActionListener(new java.awt.event.ActionListener() {
+        emergy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Choose Emergency Services" }));
+        emergy.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inPatientActionPerformed(evt);
+                emergyActionPerformed(evt);
             }
         });
 
-        jLabel9.setText("Other Services");
+        jLabel9.setText("Lab Test");
 
-        otherService.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Choose Any Other Services" }));
-        otherService.setToolTipText("");
-        otherService.addActionListener(new java.awt.event.ActionListener() {
+        labTest.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Choose Any Lab Test Services" }));
+        labTest.setToolTipText("");
+        labTest.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                otherServiceActionPerformed(evt);
+                labTestActionPerformed(evt);
             }
         });
 
@@ -267,9 +247,67 @@ public class AssignServices extends javax.swing.JFrame {
             }
         });
 
-        zakatLabel.setText("jLabel3");
-
         jLabel3.setText("Date");
+
+        zakat.setToolTipText("Zakat Recieved");
+
+        addServices.setText("Add");
+        addServices.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addServicesActionPerformed(evt);
+            }
+        });
+
+        addDentistry.setText("Add");
+        addDentistry.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addDentistryActionPerformed(evt);
+            }
+        });
+
+        addEmegy.setText("Add");
+        addEmegy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addEmegyActionPerformed(evt);
+            }
+        });
+
+        addLabTest.setText("Add");
+        addLabTest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addLabTestActionPerformed(evt);
+            }
+        });
+
+        serviceTable.setModel(new javax.swing.table.DefaultTableModel(
+            data,header
+        ));
+        jScrollPane2.setViewportView(serviceTable);
+
+        jLabel7.setText("Added Services Are :");
+
+        javax.swing.GroupLayout addServicePanelLayout = new javax.swing.GroupLayout(addServicePanel);
+        addServicePanel.setLayout(addServicePanelLayout);
+        addServicePanelLayout.setHorizontalGroup(
+            addServicePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(addServicePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(addServicePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2)
+                    .addGroup(addServicePanelLayout.createSequentialGroup()
+                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        addServicePanelLayout.setVerticalGroup(
+            addServicePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, addServicePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel7)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -278,17 +316,29 @@ public class AssignServices extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(addServicePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(patientName, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                         .addComponent(save)
                         .addGap(18, 18, 18)
                         .addComponent(jButton1))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel2)
+                        .addGap(220, 220, 220))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addGap(18, 18, 18)
+                                .addComponent(zakat, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(48, 48, 48)
+                                .addComponent(jLabel3)
+                                .addGap(25, 25, 25)
+                                .addComponent(datePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4)
@@ -297,18 +347,23 @@ public class AssignServices extends javax.swing.JFrame {
                                     .addComponent(jLabel9))
                                 .addGap(34, 34, 34)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(otherService, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(inPatient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(emergency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(healthCareServices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel10)
-                                .addGap(18, 18, 18)
-                                .addComponent(zakatLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel3)
-                                .addGap(18, 18, 18)
-                                .addComponent(datePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(dentistry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(addDentistry))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(emergy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(addEmegy))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(services, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(addServices))
+                                            .addComponent(labTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(addLabTest)))))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -321,35 +376,42 @@ public class AssignServices extends javax.swing.JFrame {
                     .addComponent(jLabel1)
                     .addComponent(patientName)
                     .addComponent(save))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel4))
-                            .addComponent(healthCareServices, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel5)
-                            .addComponent(emergency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel)
-                            .addComponent(inPatient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel9)
-                            .addComponent(otherService, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel10)
-                            .addComponent(zakatLabel)
-                            .addComponent(jLabel3)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(datePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel4))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(services, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(addServices)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(dentistry, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(addDentistry)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(emergy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(addEmegy)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel9)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(labTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(addLabTest)))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel10)
+                        .addComponent(jLabel3)
+                        .addComponent(zakat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(datePicker, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(addServicePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -408,86 +470,67 @@ public class AssignServices extends javax.swing.JFrame {
 
     private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
         // TODO add your handling code here:
-        this.labTestId = -999; // since it is not incorporated yet
-        
-        if(!validateHealthServiceCombo())//fetching ID to save if Service Choosed
-        {
-            healthCareId = -999;
+        if (addedServiceID.size() == 0) {
+            chooseServiceFlag = false;
         }
-         if(!validateEmergencyServiceCombo())       
-         {
-             emergyId=-999;
-         }
-           if(!validateInPatientCombo())     
-           {
-               inPatientId=-999;
-           }
-             if(!validateOtherServicesCombo())     
-           {
-               otherServiceId=-999;
-           }   
-             
-             
-             if( healthCareId == -999 && emergyId==-999 && inPatientId==-999 && otherServiceId==-999)
-             {
-                 JOptionPane.showMessageDialog(null,"Atleast Choose One Service");
-             }
-             
-             System.out.println("healthcareID : "+healthCareId+"  emerID: "+emergyId+" in patient : "+inPatientId+"  other: "+otherServiceId + "   patient ID: "+this.selectedPatientID);
-             
-             
-             if(datePicker.getDate() == null)
-             {
-                 JOptionPane.showMessageDialog(null,"Enter Date First");
-                 return;
-             }
-        
-               Date date= datePicker.getDate();
-             AddServicesModel addService = new AddServicesModel(selectedPatientID,healthCareId, labTestId , emergyId, inPatientId, otherServiceId, date);
-             boolean activitySaved = DAO.getInstance().insertActiviy(addService);
-             if(activitySaved)
-             {
-                 this.dispose();
-                 new UserMgmt().setVisible(true);
-             }
-             else
-             {
-                 JOptionPane.showMessageDialog(null,"Cannot Save Service. Contact Administrator");
-             }
-        
+
+        if (!chooseServiceFlag) {
+            JOptionPane.showMessageDialog(null, "Select Atleast One Service");
+            return;
+        }
+
+        if (!validateZakat()) {
+            return;
+        }
+
+        if (datePicker.getDate() == null) {
+            JOptionPane.showMessageDialog(null, "Please Enter Date First");
+            return;
+        }
+
+        Date date = datePicker.getDate();
+        AddServicesModel addService = new AddServicesModel(selectedPatientID, addedServiceID, 0, zakaRecieved, date);
+        boolean activitySaved = DAO.getInstance().insertActiviy(addService);
+        if (activitySaved) {
+            this.dispose();
+            new UserMgmt().setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(null, "Cannot Save Service. Contact Administrator");
+        }
+
     }//GEN-LAST:event_saveActionPerformed
 
-    private void healthCareServicesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_healthCareServicesActionPerformed
+    private void servicesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_servicesActionPerformed
         // TODO add your handling code here:
-         JComboBox cb = (JComboBox)evt.getSource();
-        selectedHealthType = (String)cb.getSelectedItem();
-        
-        System.out.println(selectedHealthType);
-    }//GEN-LAST:event_healthCareServicesActionPerformed
+        JComboBox cb = (JComboBox) evt.getSource();
+        selectedService = (String) cb.getSelectedItem();
 
-    private void emergencyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emergencyActionPerformed
-        // TODO add your handling code here:
-          JComboBox cb = (JComboBox)evt.getSource();
-        selectedEmergencyType = (String)cb.getSelectedItem();
-        
-        System.out.println(selectedEmergencyType);
-    }//GEN-LAST:event_emergencyActionPerformed
+        System.out.println(selectedService);
+    }//GEN-LAST:event_servicesActionPerformed
 
-    private void inPatientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inPatientActionPerformed
+    private void dentistryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dentistryActionPerformed
         // TODO add your handling code here:
-          JComboBox cb = (JComboBox)evt.getSource();
-        selectedInPatientType = (String)cb.getSelectedItem();
-        
-        System.out.println(selectedInPatientType);
-    }//GEN-LAST:event_inPatientActionPerformed
+        JComboBox cb = (JComboBox) evt.getSource();
+        selectedDentistry = (String) cb.getSelectedItem();
 
-    private void otherServiceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherServiceActionPerformed
+        System.out.println(selectedDentistry);
+    }//GEN-LAST:event_dentistryActionPerformed
+
+    private void emergyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emergyActionPerformed
         // TODO add your handling code here:
-          JComboBox cb = (JComboBox)evt.getSource();
-        selectedOtherType = (String)cb.getSelectedItem();
-        
-        System.out.println(selectedOtherType);
-    }//GEN-LAST:event_otherServiceActionPerformed
+        JComboBox cb = (JComboBox) evt.getSource();
+        selectedEmergency = (String) cb.getSelectedItem();
+
+        System.out.println(selectedEmergency);
+    }//GEN-LAST:event_emergyActionPerformed
+
+    private void labTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_labTestActionPerformed
+        // TODO add your handling code here:
+        JComboBox cb = (JComboBox) evt.getSource();
+        selectedLabTest = (String) cb.getSelectedItem();
+
+        System.out.println(selectedLabTest);
+    }//GEN-LAST:event_labTestActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
@@ -495,14 +538,235 @@ public class AssignServices extends javax.swing.JFrame {
         new SearchPatient().setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    
- 
+    private void addServicesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addServicesActionPerformed
+        // TODO add your handling code here:
+        if (!validateServicesCombo())//fetching ID to save if Service Choosed
+        {
+            JOptionPane.showMessageDialog(null, "Atleast Choose Service");
+            return;
+        } else {
+            Vector<Vector<String>> temp = DAO.getInstance().getAllServices();
+            for (int i = 0; i < temp.size(); i++) {
+                if (temp.get(i).get(1).equals(selectedService)) {
+                    Vector<String> tempData = new Vector<String>();
+                    Vector<String> tempCommit = new Vector<String>();
+                    tempData.add(temp.get(i).get(1)); //service name
+                    tempData.add(temp.get(i).get(2)); //charges
+                    tempData.add("Delete"); // for delete
+                    data.add(tempData);
+
+                    tempCommit.add(temp.get(i).get(0));// serviceID which is saved in DB
+                    tempCommit.add(temp.get(i).get(1));// serviceName
+
+                    addedServiceID.add(tempCommit); //srvice ID
+                    break;
+
+                }
+            }
+            chooseServiceFlag = true;
+        }
+
+        addServicePanel.setVisible(true);
+        DefaultTableModel dtm = new DefaultTableModel(data, header);
+        serviceTable.setModel(dtm);
+        Action delete = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                JTable table = (JTable) e.getSource();
+                int modelRow = Integer.valueOf(e.getActionCommand());
+
+                DefaultTableModel obj = (DefaultTableModel) table.getModel();
+                String deletedServiceName = obj.getDataVector().get(modelRow).toString();//get Service Name of deleted service
+                deletedServiceName = deletedServiceName.split(",")[0];
+                deletedServiceName = deletedServiceName.substring(1, deletedServiceName.length()); // to remove '[' from the start of string
+                for (int i = 0; i < addedServiceID.size(); i++) {
+                    if (addedServiceID.get(i).get(1).equals(deletedServiceName)) {
+                        addedServiceID.remove(i);
+                    }
+                }
+
+                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+            }
+        };
+
+        ButtonColumn buttonColumn = new ButtonColumn(serviceTable, delete, 2);
+        buttonColumn.setMnemonic(KeyEvent.VK_D);
+
+        this.pack();
+
+    }//GEN-LAST:event_addServicesActionPerformed
+
+    private void addDentistryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addDentistryActionPerformed
+        // TODO add your handling code here:
+
+        if (!validateDentistryCombo())//fetching ID to save if Service Choosed
+        {
+            JOptionPane.showMessageDialog(null, "Atleast Choose Dentist Service");
+            return;
+        } else {
+            Vector<Vector<String>> temp = DAO.getInstance().getAllServices();
+            for (int i = 0; i < temp.size(); i++) {
+                if (temp.get(i).get(1).equals(selectedDentistry)) {
+                    Vector<String> tempData = new Vector<String>();
+                    Vector<String> tempCommit = new Vector<String>();
+                    tempData.add(temp.get(i).get(1)); //service name
+                    tempData.add(temp.get(i).get(2)); //charges
+                    tempData.add("Delete"); // for delete
+                    data.add(tempData);
+                    tempCommit.add(temp.get(i).get(0));// serviceID which is saved in DB
+                    tempCommit.add(temp.get(i).get(1));// serviceName
+
+                    addedServiceID.add(tempCommit); //srvice ID
+
+                }
+            }
+            chooseServiceFlag = true;
+        }
+
+        addServicePanel.setVisible(true);
+        DefaultTableModel dtm = new DefaultTableModel(data, header);
+        serviceTable.setModel(dtm);
+        Action delete = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                JTable table = (JTable) e.getSource();
+                int modelRow = Integer.valueOf(e.getActionCommand());
+                DefaultTableModel obj = (DefaultTableModel) table.getModel();
+                String deletedServiceName = obj.getDataVector().get(modelRow).toString();//get Service Name of deleted service
+                deletedServiceName = deletedServiceName.split(",")[0];
+                deletedServiceName = deletedServiceName.substring(1, deletedServiceName.length()); // to remove '[' from the start of string
+                for (int i = 0; i < addedServiceID.size(); i++) {
+                    if (addedServiceID.get(i).get(1).equals(deletedServiceName)) {
+                        addedServiceID.remove(i);
+                    }
+                }
+
+                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+            }
+        };
+
+        ButtonColumn buttonColumn = new ButtonColumn(serviceTable, delete, 2);
+        buttonColumn.setMnemonic(KeyEvent.VK_D);
+
+        this.pack();
+
+    }//GEN-LAST:event_addDentistryActionPerformed
+
+    private void addEmegyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addEmegyActionPerformed
+        // TODO add your handling code here:
+        if (!validateEmergencyCombo())//fetching ID to save if Service Choosed
+        {
+            JOptionPane.showMessageDialog(null, "Atleast Choose Emergency Service");
+            return;
+        } else {
+            Vector<Vector<String>> temp = DAO.getInstance().getAllServices();
+            for (int i = 0; i < temp.size(); i++) {
+                if (temp.get(i).get(1).equals(selectedEmergency)) {
+                    Vector<String> tempData = new Vector<String>();
+                    Vector<String> tempCommit = new Vector<String>();
+                    tempData.add(temp.get(i).get(1)); //service name
+                    tempData.add(temp.get(i).get(2)); //charges
+                    tempData.add("Delete"); // for delete
+                    data.add(tempData);
+                    tempCommit.add(temp.get(i).get(0));// serviceID which is saved in DB
+                    tempCommit.add(temp.get(i).get(1));// serviceName
+
+                    addedServiceID.add(tempCommit); //srvice ID
+                    break;
+
+                }
+            }
+            chooseServiceFlag = true;
+        }
+
+        addServicePanel.setVisible(true);
+        DefaultTableModel dtm = new DefaultTableModel(data, header);
+        serviceTable.setModel(dtm);
+        Action delete = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                JTable table = (JTable) e.getSource();
+                int modelRow = Integer.valueOf(e.getActionCommand());
+                DefaultTableModel obj = (DefaultTableModel) table.getModel();
+                String deletedServiceName = obj.getDataVector().get(modelRow).toString();//get Service Name of deleted service
+                deletedServiceName = deletedServiceName.split(",")[0];
+                deletedServiceName = deletedServiceName.substring(1, deletedServiceName.length()); // to remove '[' from the start of string
+                for (int i = 0; i < addedServiceID.size(); i++) {
+                    if (addedServiceID.get(i).get(1).equals(deletedServiceName)) {
+                        addedServiceID.remove(i);
+                    }
+                }
+                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+            }
+        };
+
+        ButtonColumn buttonColumn = new ButtonColumn(serviceTable, delete, 2);
+        buttonColumn.setMnemonic(KeyEvent.VK_D);
+
+        this.pack();
+    }//GEN-LAST:event_addEmegyActionPerformed
+
+    private void addLabTestActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addLabTestActionPerformed
+        // TODO add your handling code here:
+        if (!validateLabTestCombo())//fetching ID to save if Service Choosed
+        {
+            JOptionPane.showMessageDialog(null, "Atleast Choose Lab Test Service");
+            return;
+        } else {
+            Vector<Vector<String>> temp = DAO.getInstance().getAllServices();
+            for (int i = 0; i < temp.size(); i++) {
+                if (temp.get(i).get(1).equals(selectedLabTest)) {
+                    Vector<String> tempData = new Vector<String>();
+                    Vector<String> tempCommit = new Vector<String>();
+                    tempData.add(temp.get(i).get(1)); //service name
+                    tempData.add(temp.get(i).get(2)); //charges
+                    tempData.add("Delete"); // for deletes
+                    data.add(tempData);
+                    tempCommit.add(temp.get(i).get(0));// serviceID which is saved in DB
+                    tempCommit.add(temp.get(i).get(1));// serviceName
+
+                    addedServiceID.add(tempCommit); //srvice ID
+
+                    break;
+
+                }
+            }
+            chooseServiceFlag = true;
+        }
+
+        addServicePanel.setVisible(true);
+        DefaultTableModel dtm = new DefaultTableModel(data, header);
+        serviceTable.setModel(dtm);
+        Action delete = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                JTable table = (JTable) e.getSource();
+                int modelRow = Integer.valueOf(e.getActionCommand());
+                DefaultTableModel obj = (DefaultTableModel) table.getModel();
+                String deletedServiceName = obj.getDataVector().get(modelRow).toString();//get Service Name of deleted service
+                deletedServiceName = deletedServiceName.split(",")[0];
+                deletedServiceName = deletedServiceName.substring(1, deletedServiceName.length()); // to remove '[' from the start of string
+                for (int i = 0; i < addedServiceID.size(); i++) {
+                    if (addedServiceID.get(i).get(1).equals(deletedServiceName)) {
+                        addedServiceID.remove(i);
+                    }
+                }
+                ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+            }
+        };
+
+        ButtonColumn buttonColumn = new ButtonColumn(serviceTable, delete, 2);
+        buttonColumn.setMnemonic(KeyEvent.VK_D);
+
+        this.pack();
+    }//GEN-LAST:event_addLabTestActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addDentistry;
+    private javax.swing.JButton addEmegy;
+    private javax.swing.JButton addLabTest;
+    private javax.swing.JPanel addServicePanel;
+    private javax.swing.JButton addServices;
     private org.jdesktop.swingx.JXDatePicker datePicker;
-    private javax.swing.JComboBox emergency;
-    private javax.swing.JComboBox healthCareServices;
-    private javax.swing.JComboBox inPatient;
+    private javax.swing.JComboBox dentistry;
+    private javax.swing.JComboBox emergy;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel;
     private javax.swing.JLabel jLabel1;
@@ -512,13 +776,17 @@ public class AssignServices extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JComboBox otherService;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JComboBox labTest;
     private javax.swing.JLabel patientName;
     private javax.swing.JButton save;
-    private javax.swing.JLabel zakatLabel;
+    private javax.swing.JTable serviceTable;
+    private javax.swing.JComboBox services;
+    private javax.swing.JTextField zakat;
     // End of variables declaration//GEN-END:variables
 }

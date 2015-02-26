@@ -6,34 +6,27 @@
 package Models;
 
 import java.util.Date;
-
-
+import java.util.Vector;
 
 /**
  *
  * @author Usama.Mahmood
  */
 public class AddServicesModel {
-    
+
     int patientID;
-    int healthcareID;
-    int labTestID;
-    int emergyID;
-    int indoorPatientSvcID;
-    int otherServiceID;
+    Vector<Vector<String>> addedServiceID;
+    int extraCharges;
+    int zakat;
     Date visitDate; // its is sql date
 
-    public AddServicesModel(int patientID, int healthcareID, int labTestID, int emergyID, int indoorPatientSvcID, int otherServiceID, Date visitDate) {
+    public AddServicesModel(int patientID, Vector<Vector<String>> addedServiceID, int extraCharges, int zakat, Date visitDate) {
         this.patientID = patientID;
-        this.healthcareID = healthcareID;
-        this.labTestID = labTestID;
-        this.emergyID = emergyID;
-        this.indoorPatientSvcID = indoorPatientSvcID;
-        this.otherServiceID = otherServiceID;
+        this.addedServiceID = addedServiceID;
+        this.extraCharges = extraCharges;
+        this.zakat = zakat;
         this.visitDate = visitDate;
     }
-
-   
 
     public int getPatientID() {
         return patientID;
@@ -43,44 +36,28 @@ public class AddServicesModel {
         this.patientID = patientID;
     }
 
-    public int getHealthcareID() {
-        return healthcareID;
+    public Vector<Vector<String>> getAddedServiceID() {
+        return addedServiceID;
     }
 
-    public void setHealthcareID(int healthcareID) {
-        this.healthcareID = healthcareID;
+    public void setAddedServiceID(Vector<Vector<String>> addedServiceID) {
+        this.addedServiceID = addedServiceID;
     }
 
-    public int getLabTestID() {
-        return labTestID;
+    public int getExtraCharges() {
+        return extraCharges;
     }
 
-    public void setLabTestID(int labTestID) {
-        this.labTestID = labTestID;
+    public void setExtraCharges(int extraCharges) {
+        this.extraCharges = extraCharges;
     }
 
-    public int getEmergyID() {
-        return emergyID;
+    public int getZakat() {
+        return zakat;
     }
 
-    public void setEmergyID(int emergyID) {
-        this.emergyID = emergyID;
-    }
-
-    public int getIndoorPatientSvcID() {
-        return indoorPatientSvcID;
-    }
-
-    public void setIndoorPatientSvcID(int indoorPatientSvcID) {
-        this.indoorPatientSvcID = indoorPatientSvcID;
-    }
-
-    public int getOtherServiceID() {
-        return otherServiceID;
-    }
-
-    public void setOtherServiceID(int otherServiceID) {
-        this.otherServiceID = otherServiceID;
+    public void setZakat(int zakat) {
+        this.zakat = zakat;
     }
 
     public Date getVisitDate() {
@@ -90,7 +67,5 @@ public class AddServicesModel {
     public void setVisitDate(Date visitDate) {
         this.visitDate = visitDate;
     }
-    
-    
-    
+
 }

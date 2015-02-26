@@ -40,9 +40,6 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author Usama Mahmood
  */
-
-
-
 public class SearchPatient extends javax.swing.JFrame {
 
     /**
@@ -50,9 +47,10 @@ public class SearchPatient extends javax.swing.JFrame {
      */
     public SearchPatient() {
         initComponents();
-        
-        
+        this.pack();
+
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -205,39 +203,37 @@ public class SearchPatient extends javax.swing.JFrame {
 
     private void createActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createActionPerformed
         // TODO add your handling code here:
-        
-       this.dispose();
-       new Registration().setVisible(true);
+
+        this.dispose();
+        new Registration().setVisible(true);
     }//GEN-LAST:event_createActionPerformed
 
     private void searchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchActionPerformed
         // TODO add your handling code here:
         String firstName = searchFirstName.getText();
         String lastName = searchLastName.getText();
-        int nic = 0;
-        if(!seachNIC.getText().equals(""))
-        {
-            
+        long nic = 0;
+        if (!seachNIC.getText().equals("")) {
+
             try {
-               nic = Integer.parseInt(seachNIC.getText());
+                nic = Long.parseLong(seachNIC.getText());
 
             } catch (NumberFormatException e) {
-               JOptionPane.showConfirmDialog(null, "Please enter numbers only in NIC", "Error", JOptionPane.CANCEL_OPTION);
-               return;
-           }
+                JOptionPane.showConfirmDialog(null, "Please enter numbers only in NIC", "Error", JOptionPane.CANCEL_OPTION);
+                return;
+            }
         }
-    
+
         this.dispose();
         new SearchPatientResult(firstName, lastName, nic).setVisible(true);
-        
-        
-        
+
+
     }//GEN-LAST:event_searchActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton create;
     private javax.swing.JLabel jLabel10;
