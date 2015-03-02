@@ -30,7 +30,7 @@ public class DAO {
     Connection con;
     Statement stmt;
     ResultSet rs;
-
+    String loggedInUser;
     boolean connectionFlag = true;
 
     private DAO() {
@@ -44,6 +44,8 @@ public class DAO {
 
         private static final DAO INSTANCE = new DAO();
     }
+
+   
 
     public boolean isConnectionFlag() {
         return connectionFlag;
@@ -71,6 +73,14 @@ public class DAO {
 
     public void setRs(ResultSet rs) {
         this.rs = rs;
+    }
+
+    public String getLoggedInUser() {
+        return loggedInUser;
+    }
+
+    public void setLoggedInUser(String loggedInUser) {
+        this.loggedInUser = loggedInUser;
     }
 
     public void DoConnect() {
@@ -216,6 +226,7 @@ public class DAO {
 
             while (rs.next()) {
                 if (login.getUsername().equals(rs.getString("username")) && login.getPassword().equals(rs.getString("password"))) {
+                    loggedInUser = login.getUsername();
                     return true;
                 }
             }
@@ -238,6 +249,8 @@ public class DAO {
 
                 data.add(rs.getString(1)); //service name
                 data.add(rs.getString(2)); //charges
+                data.add("Update");
+                data.add("Delete");
                 healthServices.add(data);
             }
 
@@ -260,6 +273,7 @@ public class DAO {
                 data.add(rs.getString(1));//serviceID
                 data.add(rs.getString(2)); //service name
                 data.add(rs.getString(3)); //charges
+                data.add(rs.getString(4)); //service_Type_id
                 allServices.add(data);
             }
 

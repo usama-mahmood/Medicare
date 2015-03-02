@@ -6,12 +6,20 @@
 package Views;
 
 import DatabaseAccessLayer.DAO;
+import Models.ButtonColumn;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.table.DefaultTableModel;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRResultSetDataSource;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -63,12 +71,83 @@ public class UserMgmt extends javax.swing.JFrame {
         headerLabTest.add("Lab Test"); //service Type
         headerLabTest.add("Charges"); // chargesgetOtherServicesData
 
-        initComponents();
-        tabbedPane.setTitleAt(0, "Patients Info");
-        tabbedPane.setTitleAt(1, "Services");
-        tabbedPane.setTitleAt(2, "Dentistry");
-        tabbedPane.setTitleAt(3, "Emergency");
-        tabbedPane.setTitleAt(4, "Lab Tests");
+        if (DAO.getInstance().getLoggedInUser().equals("admin")) {
+            header.add("Update");
+            header.add("Remove");
+
+            headerDentist.add("Update");
+            headerDentist.add("Remove");
+
+            headerEmergy.add("Update");
+            headerEmergy.add("Remove");
+
+            headerLabTest.add("Update");
+            headerLabTest.add("Remove");
+            initComponents();
+            Action delete = new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    JTable table = (JTable) e.getSource();
+                    int modelRow = Integer.valueOf(e.getActionCommand());
+
+                    DefaultTableModel obj = (DefaultTableModel) table.getModel();
+                    ((DefaultTableModel) table.getModel()).removeRow(modelRow);
+                }
+            };
+
+            Action update = new AbstractAction() {
+                public void actionPerformed(ActionEvent e) {
+                    JTable table = (JTable) e.getSource();
+                    int modelRow = Integer.valueOf(e.getActionCommand());
+                    DefaultTableModel obj = (DefaultTableModel) table.getModel();
+                    Vector<Vector<String>> serviceData = obj.getDataVector();
+                    new UpdateService(obj, serviceData.get(modelRow).get(0), Integer.parseInt(serviceData.get(modelRow).get(1)), modelRow).setVisible(true);
+                    table.setModel(obj);
+                }
+            };
+
+            ButtonColumn serviceDelete = new ButtonColumn(services, delete, 3);
+            serviceDelete.setMnemonic(KeyEvent.VK_D);
+
+            ButtonColumn serviceUpdate = new ButtonColumn(services, update, 2);
+            serviceUpdate.setMnemonic(KeyEvent.VK_D);
+
+            ButtonColumn dentistryDelete = new ButtonColumn(dentist, delete, 3);
+            dentistryDelete.setMnemonic(KeyEvent.VK_D);
+
+            ButtonColumn dentistryUpdate = new ButtonColumn(dentist, update, 2);
+            dentistryUpdate.setMnemonic(KeyEvent.VK_D);
+
+            ButtonColumn emecyDelete = new ButtonColumn(emergy, delete, 3);
+            emecyDelete.setMnemonic(KeyEvent.VK_D);
+
+            ButtonColumn emecyUpdate = new ButtonColumn(emergy, update, 2);
+            emecyUpdate.setMnemonic(KeyEvent.VK_D);
+
+            ButtonColumn labTstDelete = new ButtonColumn(labTest, delete, 3);
+            labTstDelete.setMnemonic(KeyEvent.VK_D);
+
+            ButtonColumn labTestUpdate = new ButtonColumn(labTest, update, 2);
+            labTestUpdate.setMnemonic(KeyEvent.VK_D);
+        } else {
+            initComponents();
+            this.save1.setVisible(false);
+            this.save2.setVisible(false);
+            this.save3.setVisible(false);
+            this.save4.setVisible(false);
+            this.add1.setVisible(false);
+            this.add2.setVisible(false);
+            this.add3.setVisible(false);
+            this.add4.setVisible(false);
+            this.pack();
+        }
+
+        table.setTitleAt(0, "Patients Info");
+        table.setTitleAt(1, "Services");
+        table.setTitleAt(2, "Dentistry");
+        table.setTitleAt(3, "Emergency");
+        table.setTitleAt(4, "Lab Tests");
+        services.editingStopped(new ChangeEvent(services));
+
         this.pack();
     }
 
@@ -84,23 +163,32 @@ public class UserMgmt extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        tabbedPane = new javax.swing.JTabbedPane();
+        table = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         newPatient = new javax.swing.JButton();
         repeatPatient = new javax.swing.JButton();
         reportBtn = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        healthCareTable = new javax.swing.JTable();
+        services = new javax.swing.JTable();
+        add1 = new javax.swing.JButton();
+        save1 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        emergencySvc = new javax.swing.JTable();
+        dentist = new javax.swing.JTable();
+        save2 = new javax.swing.JButton();
+        add2 = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        indoorPatients = new javax.swing.JTable();
+        emergy = new javax.swing.JTable();
+        save3 = new javax.swing.JButton();
+        add3 = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
-        others = new javax.swing.JTable();
+        labTest = new javax.swing.JTable();
+        save4 = new javax.swing.JButton();
+        add4 = new javax.swing.JButton();
+        logout = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Manage Patients");
@@ -182,18 +270,30 @@ public class UserMgmt extends javax.swing.JFrame {
                     .addComponent(newPatient, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(reportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        tabbedPane.addTab("tab1", jPanel1);
+        table.addTab("tab1", jPanel1);
 
-        jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
-
-        healthCareTable.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
-        healthCareTable.setModel(new javax.swing.table.DefaultTableModel(
+        services.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        services.setModel(new javax.swing.table.DefaultTableModel(
             data,header
         ));
-        jScrollPane1.setViewportView(healthCareTable);
+        jScrollPane1.setViewportView(services);
+
+        add1.setText("Add Service");
+        add1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                add1ActionPerformed(evt);
+            }
+        });
+
+        save1.setText("Save");
+        save1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                save1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -201,24 +301,47 @@ public class UserMgmt extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(save1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(add1)))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(add1)
+                    .addComponent(save1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        tabbedPane.addTab("tab2", jPanel3);
+        table.addTab("tab2", jPanel3);
 
-        emergencySvc.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
-        emergencySvc.setModel(new javax.swing.table.DefaultTableModel(
+        dentist.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        dentist.setModel(new javax.swing.table.DefaultTableModel(
             dataDentist,headerDentist
         ));
-        jScrollPane2.setViewportView(emergencySvc);
+        jScrollPane2.setViewportView(dentist);
+
+        save2.setText("Save");
+        save2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                save2ActionPerformed(evt);
+            }
+        });
+
+        add2.setText("Add Service");
+        add2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                add2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -226,24 +349,47 @@ public class UserMgmt extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(save2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(add2)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(add2)
+                    .addComponent(save2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        tabbedPane.addTab("tab3", jPanel4);
+        table.addTab("tab3", jPanel4);
 
-        indoorPatients.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
-        indoorPatients.setModel(new javax.swing.table.DefaultTableModel(
+        emergy.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        emergy.setModel(new javax.swing.table.DefaultTableModel(
             dataEmergy,headerEmergy
         ));
-        jScrollPane3.setViewportView(indoorPatients);
+        jScrollPane3.setViewportView(emergy);
+
+        save3.setText("Save");
+        save3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                save3ActionPerformed(evt);
+            }
+        });
+
+        add3.setText("Add Service");
+        add3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                add3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -251,24 +397,47 @@ public class UserMgmt extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(save3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(add3)))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(add3)
+                    .addComponent(save3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        tabbedPane.addTab("tab4", jPanel5);
+        table.addTab("tab4", jPanel5);
 
-        others.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
-        others.setModel(new javax.swing.table.DefaultTableModel(
+        labTest.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        labTest.setModel(new javax.swing.table.DefaultTableModel(
             dataLabTest,headerLabTest
         ));
-        jScrollPane4.setViewportView(others);
+        jScrollPane4.setViewportView(labTest);
+
+        save4.setText("Save");
+        save4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                save4ActionPerformed(evt);
+            }
+        });
+
+        add4.setText("Add Service");
+        add4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                add4ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -276,28 +445,47 @@ public class UserMgmt extends javax.swing.JFrame {
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(save4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(add4)))
                 .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(add4)
+                    .addComponent(save4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        tabbedPane.addTab("tab5", jPanel6);
+        table.addTab("tab5", jPanel6);
+
+        logout.setText("Logout");
+        logout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logoutActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(table, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(logout)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -305,8 +493,10 @@ public class UserMgmt extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(tabbedPane)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(logout)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(table)
                 .addContainerGap())
         );
 
@@ -348,45 +538,89 @@ public class UserMgmt extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_reportBtnActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UserMgmt.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(UserMgmt.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(UserMgmt.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(UserMgmt.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void logoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+        new Login().setVisible(true);
+    }//GEN-LAST:event_logoutActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new UserMgmt().setVisible(true);
-            }
-        });
-    }
+    private void add1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_add1ActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel obj = (DefaultTableModel) services.getModel();
+
+        AddService addServiceObj;
+        addServiceObj = new AddService(obj);
+        addServiceObj.setVisible(true);
+
+        // addServiceObj.dispose();
+    }//GEN-LAST:event_add1ActionPerformed
+
+    private void add2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_add2ActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel obj = (DefaultTableModel) dentist.getModel();
+
+        AddService addServiceObj;
+        addServiceObj = new AddService(obj);
+        addServiceObj.setVisible(true);
+    }//GEN-LAST:event_add2ActionPerformed
+
+    private void add3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_add3ActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel obj = (DefaultTableModel) emergy.getModel();
+
+        AddService addServiceObj;
+        addServiceObj = new AddService(obj);
+        addServiceObj.setVisible(true);
+    }//GEN-LAST:event_add3ActionPerformed
+
+    private void add4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_add4ActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel obj = (DefaultTableModel) labTest.getModel();
+
+        AddService addServiceObj;
+        addServiceObj = new AddService(obj);
+        addServiceObj.setVisible(true);
+    }//GEN-LAST:event_add4ActionPerformed
+
+    private void save1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save1ActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel obj = (DefaultTableModel) services.getModel();
+        Vector<Vector<String>> serviceData = obj.getDataVector();
+
+        for (int i = 0; i < serviceData.size(); i++) {
+            System.out.println("--->>" + serviceData.get(i).get(0));
+            System.out.println("--->>" + serviceData.get(i).get(1));
+
+        }
+        JOptionPane.showMessageDialog(this, "Working On This Functionality");
+    }//GEN-LAST:event_save1ActionPerformed
+
+    private void save2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save2ActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this, "Working On This Functionality");
+
+    }//GEN-LAST:event_save2ActionPerformed
+
+    private void save3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save3ActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this, "Working On This Functionality");
+
+    }//GEN-LAST:event_save3ActionPerformed
+
+    private void save4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save4ActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this, "Working On This Functionality");
+
+    }//GEN-LAST:event_save4ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTable emergencySvc;
-    private javax.swing.JTable healthCareTable;
-    private javax.swing.JTable indoorPatients;
+    private javax.swing.JButton add1;
+    private javax.swing.JButton add2;
+    private javax.swing.JButton add3;
+    private javax.swing.JButton add4;
+    private javax.swing.JTable dentist;
+    private javax.swing.JTable emergy;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
@@ -399,10 +633,16 @@ public class UserMgmt extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTable labTest;
+    private javax.swing.JButton logout;
     private javax.swing.JButton newPatient;
-    private javax.swing.JTable others;
     private javax.swing.JButton repeatPatient;
     private javax.swing.JButton reportBtn;
-    private javax.swing.JTabbedPane tabbedPane;
+    private javax.swing.JButton save1;
+    private javax.swing.JButton save2;
+    private javax.swing.JButton save3;
+    private javax.swing.JButton save4;
+    private javax.swing.JTable services;
+    private javax.swing.JTabbedPane table;
     // End of variables declaration//GEN-END:variables
 }

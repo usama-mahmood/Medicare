@@ -235,23 +235,11 @@ ORDER BY ROW Asc]]>
 				<reportElement style="Row" mode="Opaque" x="0" y="0" width="802" height="15" uuid="7e393095-05e3-4a5c-b8e8-80ad8651c3b9"/>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="0" y="0" width="89" height="15" uuid="b51192de-cf2d-4a6f-b658-932d9984fd01"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center"/>
 					<textFieldExpression><![CDATA[$F{ROW}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="89" y="0" width="89" height="15" uuid="29163a25-2e4c-4272-b66c-fe5af0f38f8b"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center">
 						<font fontName="Arial" size="10"/>
 					</textElement>
@@ -259,78 +247,36 @@ ORDER BY ROW Asc]]>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="178" y="0" width="89" height="15" uuid="ac65d565-a166-46c6-bb80-25b72e9c53f9"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center"/>
 					<textFieldExpression><![CDATA[$F{no_of_patients}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="267" y="0" width="89" height="15" uuid="bc5573d2-dee8-4c3c-b50e-28e6b3349f3a"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center"/>
 					<textFieldExpression><![CDATA[$F{rate}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="356" y="0" width="89" height="15" uuid="f0995d8e-9a31-4667-9b51-93c34e4c9fb5"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center"/>
 					<textFieldExpression><![CDATA[$F{cash}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="445" y="0" width="89" height="15" uuid="c742e75f-0696-46d5-959a-a427b093baef"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center"/>
 					<textFieldExpression><![CDATA[$F{zakat}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="534" y="0" width="89" height="15" uuid="5fc3fb98-8ba7-4c77-ba56-ae85878ba0bc"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center"/>
 					<textFieldExpression><![CDATA[""+$F{Donation}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="623" y="0" width="89" height="15" uuid="b4371d5e-0786-4fa1-a49d-5e26d725b6f3"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center"/>
 					<textFieldExpression><![CDATA[""+$F{Other}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true">
 					<reportElement style="Detail" x="712" y="0" width="89" height="15" uuid="a08f3908-2caf-4f30-905f-17957d43fedc"/>
-					<box>
-						<topPen lineWidth="1.25"/>
-						<leftPen lineWidth="1.25"/>
-						<bottomPen lineWidth="1.25"/>
-						<rightPen lineWidth="1.25"/>
-					</box>
 					<textElement textAlignment="Center"/>
 					<textFieldExpression><![CDATA[$F{Total}]]></textFieldExpression>
 				</textField>
