@@ -10,7 +10,9 @@ import Models.ButtonColumn;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +29,7 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -168,6 +171,8 @@ public class UserMgmt extends javax.swing.JFrame {
         newPatient = new javax.swing.JButton();
         repeatPatient = new javax.swing.JButton();
         reportBtn = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        datePicker = new org.jdesktop.swingx.JXDatePicker();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         services = new javax.swing.JTable();
@@ -245,6 +250,8 @@ public class UserMgmt extends javax.swing.JFrame {
             }
         });
 
+        jLabel3.setText("Select Date");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -255,11 +262,16 @@ public class UserMgmt extends javax.swing.JFrame {
                         .addGap(139, 139, 139)
                         .addComponent(newPatient, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(repeatPatient))
+                        .addComponent(repeatPatient)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(191, 191, 191)
-                        .addComponent(reportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(151, Short.MAX_VALUE))
+                        .addComponent(reportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(datePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -269,8 +281,11 @@ public class UserMgmt extends javax.swing.JFrame {
                     .addComponent(repeatPatient, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(newPatient, javax.swing.GroupLayout.PREFERRED_SIZE, 68, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(reportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(reportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(datePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         table.addTab("tab1", jPanel1);
@@ -519,12 +534,20 @@ public class UserMgmt extends javax.swing.JFrame {
     private void reportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reportBtnActionPerformed
         try {
             // TODO add your handling code here:
+
+            if (datePicker.getDate() == null) {
+                JOptionPane.showMessageDialog(null, "Please Enter Date First");
+                return;
+            }
+
+            Date date = datePicker.getDate();
+            Map map = new HashMap();
+            map.put("date", date);
             InputStream bdl = this.getClass().getResourceAsStream("/reports/DayEndSummary.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(bdl);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, new HashMap(), new JRResultSetDataSource(DAO.getInstance().fetchDataSource()));
-
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, map,DAO.getInstance().getCon() );//new JRResultSetDataSource(DAO.getInstance().fetchDataSource())
+            JasperViewer.viewReport(jasperPrint, false);   
             JasperExportManager.exportReportToPdfFile(jasperPrint, "DayEndReport.pdf");
-            JOptionPane.showMessageDialog(null, "Report Executed Successfully");
         } catch (JRException ex) {
             Logger.getLogger(UserMgmt.class.getName()).log(Level.SEVERE, null, ex);
 
@@ -619,8 +642,10 @@ public class UserMgmt extends javax.swing.JFrame {
     private javax.swing.JButton add2;
     private javax.swing.JButton add3;
     private javax.swing.JButton add4;
+    private org.jdesktop.swingx.JXDatePicker datePicker;
     private javax.swing.JTable dentist;
     private javax.swing.JTable emergy;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;

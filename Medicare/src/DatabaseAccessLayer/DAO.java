@@ -111,12 +111,7 @@ public class DAO {
 
         try {
             stmt = con.createStatement();
-            String sql = "select (@row:=@row+1) AS ROW,svc.`SVC_NAME` as service_name,count(*) as no_of_patients,svc.`CHARGES` as rate, (svc.`CHARGES` * count(*) ) as cash,act.`ZAKAT` as zakat, 0 as Donation, 0 as Other, ((svc.`CHARGES`* count(*) )+act.`ZAKAT`) as Total,act.`VISIT_DATE` as Date\n"
-                    + "from \n"
-                    + "activities act ,services svc,(SELECT @row := 0) r \n"
-                    + "where act.`SERVICE_ID` = svc.`SERVICE_ID`\n"
-                    + "group by svc.`SVC_NAME`\n"
-                    + "ORDER BY ROW Asc";
+            String  sql = "call dayEndReport()";
             rs = stmt.executeQuery(sql);
 
             return rs;

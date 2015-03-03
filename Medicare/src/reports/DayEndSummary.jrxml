@@ -13,25 +13,42 @@
 			<style backcolor="#E6DAC3"/>
 		</conditionalStyle>
 	</style>
+	<parameter name="date" class="java.util.Date">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
 	<queryString>
-		<![CDATA[select (@row:=@row+1) AS ROW,svc.`SVC_NAME` as service_name,count(*) as no_of_patients,svc.`CHARGES` as rate, (svc.`CHARGES` * count(*) ) as cash,act.`ZAKAT` as zakat, 0 as Donation, 0 as Other, ((svc.`CHARGES`* count(*) )+act.`ZAKAT`) as Total,act.`VISIT_DATE` as Date
-from 
-activities act ,services svc,(SELECT @row := 0) r 
-where act.`SERVICE_ID` = svc.`SERVICE_ID`
-group by svc.`SVC_NAME`
-ORDER BY ROW Asc]]>
+		<![CDATA[SELECT
+    (@row:=@row+1) AS ROW,
+     count(*) AS no_of_patients,
+     ((svc.`CHARGES`*count(*)) - act.`ZAKAT`) AS cash,
+     0 AS Donation,
+     0 AS Other,
+     (svc.`CHARGES`*count(*)) AS Total,
+     svc.`SVC_NAME` AS service_name,
+     svc.`CHARGES` AS rate,
+     act.`ZAKAT` AS zakat,
+     act.`VISIT_DATE` AS Date
+FROM
+     activities act ,services svc,(SELECT @row := 0) r 
+
+WHERE
+      act.`SERVICE_ID` = svc.`SERVICE_ID` and act.`VISIT_DATE` =$P{date}
+GROUP BY
+     svc.`SVC_NAME`
+ORDER BY
+     ROW ASC]]>
 	</queryString>
 	<field name="ROW" class="java.lang.Long"/>
-	<field name="service_name" class="java.lang.String"/>
 	<field name="no_of_patients" class="java.lang.Long"/>
-	<field name="rate" class="java.lang.String"/>
 	<field name="cash" class="java.lang.Double"/>
-	<field name="zakat" class="java.lang.Integer">
-		<fieldDescription><![CDATA[]]></fieldDescription>
-	</field>
 	<field name="Donation" class="java.lang.Long"/>
 	<field name="Other" class="java.lang.Long"/>
 	<field name="Total" class="java.lang.Double"/>
+	<field name="service_name" class="java.lang.String"/>
+	<field name="rate" class="java.lang.String"/>
+	<field name="zakat" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
 	<field name="Date" class="java.sql.Date"/>
 	<background>
 		<band splitType="Stretch"/>
