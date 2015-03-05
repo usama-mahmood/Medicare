@@ -16,6 +16,9 @@
 	<parameter name="date" class="java.util.Date">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
+	<parameter name="imagePath" class="java.io.InputStream">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
 	<queryString>
 		<![CDATA[SELECT
     (@row:=@row+1) AS ROW,
@@ -102,8 +105,8 @@ ORDER BY
 				<textFieldExpression><![CDATA[$F{Date}]]></textFieldExpression>
 			</textField>
 			<image>
-				<reportElement x="414" y="19" width="120" height="76" uuid="329bb2ce-d79b-49fc-a445-7ad5d5368ec5"/>
-				<imageExpression><![CDATA["F:\\NetBeansProjs\\MedicareBranchUsama\\Medicare\\src\\resources\\medicareTrust_Center.png"]]></imageExpression>
+				<reportElement x="414" y="19" width="120" height="76" uuid="00f61e09-ea57-4381-891b-9f6588e58b31"/>
+				<imageExpression><![CDATA[$P{imagePath}]]></imageExpression>
 			</image>
 		</band>
 	</title>
@@ -327,13 +330,6 @@ ORDER BY
 						<font size="10" isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
-				</textField>
-				<textField pattern="EEEEE dd MMMMM yyyy">
-					<reportElement style="Column header" x="22" y="1" width="197" height="20" forecolor="#736343" uuid="e700e69a-b7db-4162-9679-6b8a2920b426"/>
-					<textElement verticalAlignment="Middle">
-						<font size="10" isBold="false"/>
-					</textElement>
-					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 				</textField>
 			</frame>
 		</band>

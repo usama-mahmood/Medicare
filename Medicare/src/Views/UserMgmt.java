@@ -10,12 +10,14 @@ import Models.ButtonColumn;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletContext;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
@@ -543,10 +545,12 @@ public class UserMgmt extends javax.swing.JFrame {
             Date date = datePicker.getDate();
             Map map = new HashMap();
             map.put("date", date);
+            InputStream imagePath = this.getClass().getResourceAsStream("/resources/medicareTrust_Center.png");
+            map.put("imagePath", imagePath);
             InputStream bdl = this.getClass().getResourceAsStream("/reports/DayEndSummary.jrxml");
             JasperReport jasperReport = JasperCompileManager.compileReport(bdl);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, map,DAO.getInstance().getCon() );//new JRResultSetDataSource(DAO.getInstance().fetchDataSource())
-            JasperViewer.viewReport(jasperPrint, false);   
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, map, DAO.getInstance().getCon());//new JRResultSetDataSource(DAO.getInstance().fetchDataSource())
+            JasperViewer.viewReport(jasperPrint, false);
             JasperExportManager.exportReportToPdfFile(jasperPrint, "DayEndReport.pdf");
         } catch (JRException ex) {
             Logger.getLogger(UserMgmt.class.getName()).log(Level.SEVERE, null, ex);
