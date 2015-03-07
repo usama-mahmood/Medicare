@@ -62,6 +62,7 @@ public class AssignServices extends javax.swing.JFrame {
 
         addServicePanel.setVisible(false);
         this.pack();
+        this.setLocationRelativeTo(null);
 
     }
 
