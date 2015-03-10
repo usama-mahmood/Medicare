@@ -24,26 +24,29 @@ import javax.swing.JOptionPane;
 /**
  *
  * @author Usama Mahmood
- */ 
+ */
 public class DAO {
+
     Connection con;
     Statement stmt;
     ResultSet rs;
-
+    String loggedInUser;
     boolean connectionFlag = true;
+
     private DAO() {
     }
-    
+
     public static DAO getInstance() {
         return DAOHolder.INSTANCE;
     }
-    
+
     private static class DAOHolder {
 
         private static final DAO INSTANCE = new DAO();
     }
-    
-    
+
+   
+
     public boolean isConnectionFlag() {
         return connectionFlag;
     }
@@ -71,420 +74,238 @@ public class DAO {
     public void setRs(ResultSet rs) {
         this.rs = rs;
     }
-    
-     public void DoConnect( ) {
 
-       try {
+    public String getLoggedInUser() {
+        return loggedInUser;
+    }
+
+    public void setLoggedInUser(String loggedInUser) {
+        this.loggedInUser = loggedInUser;
+    }
+
+    public void DoConnect() {
+
+        try {
             InputStream bdl = this.getClass().getResourceAsStream("/resources/dbconfig.properties");
             Properties prop = new Properties();
             prop.load(bdl);
             String host = "jdbc:mysql://" + prop.getProperty("host") + "/" + prop.getProperty("dbname");
             String uName = prop.getProperty("user");
             String uPass = prop.getProperty("password");
-            con =   DriverManager.getConnection(host, uName, uPass);
-        }
-        catch(Exception e) {
-           // this.txtMsg.setText("Failed to connect; Please viewStack Trace");
+            con = DriverManager.getConnection(host, uName, uPass);
+        } catch (Exception e) {
+            // this.txtMsg.setText("Failed to connect; Please viewStack Trace");
             connectionFlag = false;
-               StringBuilder sb = new StringBuilder(e.toString());
-                for (StackTraceElement ste : e.getStackTrace()) {
-                    sb.append("\n\tat ");
-                    sb.append(ste);
-                }
-                String trace = sb.toString();
-            JOptionPane.showMessageDialog(null, trace,"Message", JOptionPane.INFORMATION_MESSAGE);
+            StringBuilder sb = new StringBuilder(e.toString());
+            for (StackTraceElement ste : e.getStackTrace()) {
+                sb.append("\n\tat ");
+                sb.append(ste);
+            }
+            String trace = sb.toString();
+            JOptionPane.showMessageDialog(null, trace, "Message", JOptionPane.INFORMATION_MESSAGE);
         }
 
-     }
-    
+    }
 
+    public ResultSet fetchDataSource() {
 
-     public String[] getHealthCareTypes( ) {
-         String [] healthCarType;
-         try
-         {
-            stmt = con.createStatement();   
-            String sql = "select * from HEALTHCARE";
-            rs= stmt.executeQuery(sql);
-           
-            ArrayList<String> result = new ArrayList<String>();
-            
-             while(rs.next())
-            {
-                result.add(rs.getString(2));
-            }
+        try {
+            stmt = con.createStatement();
+            String  sql = "call dayEndReport()";
+            rs = stmt.executeQuery(sql);
 
-            
-            System.out.println(result.toString());
-             return (String[]) result.toArray(new String[result.size()]);
-                
-         }catch(SQLException e)
-         {
-             e.printStackTrace();
-         }
-        return null;
-     }
-     
-     public String[] getEmergecyTypes( ) {
-        
-         try
-         {
-            stmt = con.createStatement();   
-            String sql = "select * from emer_svcs";
-            rs= stmt.executeQuery(sql);
-           
-            ArrayList<String> result = new ArrayList<String>();
-            
-             while(rs.next())
-            {
-                result.add(rs.getString(2));
-            }
+            return rs;
 
-            
-            System.out.println(result.toString());
-             return (String[]) result.toArray(new String[result.size()]);
-                
-         }catch(SQLException e)
-         {
-             e.printStackTrace();
-         }
-        return null;
-     }
-
-      public String[] getInPatientTypes( ) {
-        
-         try
-         {
-            stmt = con.createStatement();   
-            String sql = "select * from indoor_patient";
-            rs= stmt.executeQuery(sql);
-           
-            ArrayList<String> result = new ArrayList<String>();
-            
-             while(rs.next())
-            {
-                result.add(rs.getString(2));
-            }
-
-            
-            System.out.println(result.toString());
-             return (String[]) result.toArray(new String[result.size()]);
-                
-         }catch(SQLException e)
-         {
-             e.printStackTrace();
-         }
-        return null;
-     }
-        public String[] getOtherServices( ) {
-        
-         try
-         {
-            stmt = con.createStatement();   
-            String sql = "select * from other_services";
-            rs= stmt.executeQuery(sql);
-           
-            ArrayList<String> result = new ArrayList<String>();
-            
-             while(rs.next())
-            {
-                result.add(rs.getString(2));
-            }
-
-            
-            System.out.println(result.toString());
-             return (String[]) result.toArray(new String[result.size()]);
-                
-         }catch(SQLException e)
-         {
-             e.printStackTrace();
-         }
-        return null;
-     }
-        
-        public ResultSet fetchDataSource()
-        {
-            
-             
-            try
-            {
-               stmt = con.createStatement();   
-               String sql = "select (@row:=@row+1) AS ROW,hlth.`HEALTH_CARE_TYPE`,count(*) as no_of_patients,hlth.`CHARGES` as rate, (hlth.`CHARGES` * count(*) ) as cash,patient.`ZAKAT` as zakat, 0 as Donation, 0 as Other, ((hlth.`CHARGES` * count(*) )+patient.`ZAKAT`) as Total,act.`VISIT_DATE` as Date\n" +
-                "from \n" +
-                "healthcare hlth,activities act ,patient_info patient,(SELECT @row := 0) r \n" +
-                "where hlth.`HEALTH_CARE_ID` = act.`HEALTH_CARE_ID`\n" +
-                "and act.`PATIENT_ID` = patient.`PATIENT_ID`\n" +
-                "group by hlth.`HEALTH_CARE_TYPE`\n" +
-                "ORDER BY ROW Asc";
-               rs= stmt.executeQuery(sql);
-
-             return rs;
-
-            }catch(SQLException e)
-            {
-                e.printStackTrace();
-            }
-            
-            return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-     
-      public boolean insertActiviy (AddServicesModel serviceModel)
-     {
-           
-            String sql="";
-         
+
+        return null;
+    }
+
+    public boolean insertActiviy(AddServicesModel serviceModel) {
+
+        String sql = "";
+        boolean insertFlag = false;
+
         //put the rest of the sentence
-          try {
+        try {
 
+            for (int i = 0; i < serviceModel.getAddedServiceID().size(); i++) {
 
-                 sql="INSERT INTO activities (PATIENT_ID,HEALTH_CARE_ID,LAB_TEST_ID,EMER_SVC_ID,INDOOR_PATIENT_ID,SERVICE_ID,VISIT_DATE) VALUES (?,?,?,?,?,?,?)";
-
+                sql = "call insertAcivity(?,?,?,?,?)";
                 PreparedStatement pdt = con.prepareStatement(sql);
-               pdt.setInt(1, serviceModel.getPatientID());
-                
-                if (serviceModel.getHealthcareID()==-999) {
-                    pdt.setNull(2, Types.INTEGER);
-                } else {
-                   
-                   pdt.setInt(2, serviceModel.getHealthcareID());
-                }
-               
-               
-                if (serviceModel.getLabTestID()==-999) {
-                    pdt.setNull(3, Types.INTEGER);
-                } else {
-                   
-                   pdt.setInt(3, serviceModel.getLabTestID());
-                }
-                
-                
-                if (serviceModel.getEmergyID()==-999) {
-                    pdt.setNull(4, Types.INTEGER);
-                } else {
-                   
-                   pdt.setInt(4, serviceModel.getEmergyID());
-                }
-                 
-                 
-                if (serviceModel.getIndoorPatientSvcID()==-999) {
-                    pdt.setNull(5, Types.INTEGER);
-                } else {
-                   
-                   pdt.setInt(5, serviceModel.getIndoorPatientSvcID());
-                }
-                 
-                 
-                if (serviceModel.getOtherServiceID()==-999) {
-                    pdt.setNull(6, Types.INTEGER);
-                } else {
-                   
-                   pdt.setInt(6, serviceModel.getOtherServiceID());
-                }
-                 
-                 
-                 java.sql.Date date=   new java.sql.Date(serviceModel.getVisitDate().getTime());
-                   pdt.setDate(7, date);
-                
-             
-                //put the rest of the code
-               int n1=pdt.executeUpdate();
-               if(n1>0)
-               {
-                    JOptionPane.showMessageDialog(null,"Inserted Successfully!");
-                    return true;
-               }
-            }catch (SQLException ex) {
-                ex.printStackTrace();
 
+                pdt.setInt(1, serviceModel.getPatientID());
+                pdt.setInt(2, Integer.parseInt(serviceModel.getAddedServiceID().get(i).get(0))); // for serviceID
+                pdt.setInt(3, serviceModel.getExtraCharges());
+                pdt.setInt(4, serviceModel.getZakat());
+                java.sql.Date date = new java.sql.Date(serviceModel.getVisitDate().getTime());
+                pdt.setDate(5, date);
+
+                int n1 = pdt.executeUpdate();
+                if (n1 > 0) {
+                    insertFlag = true;
+                } else {
+                    insertFlag = false;
+                }
             }
-          return false;
-     }
-     
-     public boolean insertPerson (PatientInfoModel person)
-     {
-                     int serviceType=0;
-                     String sql="";
-         
-    //put the rest of the sentence
-      try {
-          
-          
-             sql="INSERT INTO PATIENT_INFO (FIRST_NAME,LAST_NAME,ZAKAT,NIC) VALUES (?,?,?,?)";
 
-            PreparedStatement pdt = con.prepareStatement(sql);
-           pdt.setString(1, person.getFirstName());
-           pdt.setString(2, person.getLastName());
-            pdt.setInt(3, person.getZakat());
-           pdt.setLong(4, person.getNic());
-          
-            //put the rest of the code
-           int n1=pdt.executeUpdate();
-           if(n1>0)
-           {
-                JOptionPane.showMessageDialog(null,"Inserted Successfully!");
+            if (insertFlag) {
+                JOptionPane.showMessageDialog(null, "Inserted Successfully!");
                 return true;
-           }
-        }catch (SQLException ex) {
+            }
+
+        } catch (SQLException ex) {
             ex.printStackTrace();
 
         }
-      return false;
-     }
-     
-     public boolean checkLogin(LoginModel login)
-     {
-         try
-         {
-            stmt = con.createStatement();   
+        return false;
+    }
+
+    public boolean insertPatient(PatientInfoModel person) {
+        int serviceType = 0;
+        String sql = "";
+
+        //put the rest of the sentence
+        try {
+
+            sql = "call insertPatient(?,?,?)";
+
+            PreparedStatement pdt = con.prepareStatement(sql);
+            pdt.setString(1, person.getFirstName());
+            pdt.setString(2, person.getLastName());
+            pdt.setLong(3, person.getNic());
+
+            //put the rest of the code
+            int n1 = pdt.executeUpdate();
+            if (n1 > 0) {
+                JOptionPane.showMessageDialog(null, "Inserted Successfully!");
+                return true;
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+
+        }
+        return false;
+    }
+
+    public Vector<Vector<String>> getAllPatient() {
+        try {
+            Vector<Vector<String>> allPatients = new Vector<Vector<String>>();
+            PreparedStatement pre = con.prepareStatement("call getAllPatients()");
+            ResultSet rs = pre.executeQuery();
+
+            while (rs.next()) {
+                Vector<String> data = new Vector<String>();
+                data.add(rs.getString(1));//patientID
+                data.add(rs.getString(2)); //firstName
+                data.add(rs.getString(3)); //LastName
+                data.add(rs.getString(4)); //nic
+                allPatients.add(data);
+            }
+
+            return allPatients;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public boolean checkLogin(LoginModel login) {
+        try {
+            stmt = con.createStatement();
             String sql = "select * from login";
-            rs= stmt.executeQuery(sql);
-           
-           
-            
-             while(rs.next())
-            {
-                if(login.getUsername().equals(rs.getString("username")) && login.getPassword().equals(rs.getString("password")))
-                {
+            rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                if (login.getUsername().equals(rs.getString("username")) && login.getPassword().equals(rs.getString("password"))) {
+                    loggedInUser = login.getUsername();
                     return true;
                 }
             }
-                
-         }catch(SQLException e)
-         {
-             e.printStackTrace();
-         }
-         
-         return false;
-     }
-     
-     public Vector getHealthCareServicesData()
-    {
-        try{
-            Vector<Vector<String>> healthServices = new Vector<Vector<String>>();
-            PreparedStatement pre = con.prepareStatement("select * from healthcare");
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public Vector getServicesData(String service) {
+        try {
+            Vector<Vector<String>> healthServices = new Vector<Vector<String>>();
+            PreparedStatement pre = con.prepareStatement("call GetService('" + service + "')");
             ResultSet rs = pre.executeQuery();
 
-            while(rs.next())
-            {
+            while (rs.next()) {
                 Vector<String> data = new Vector<String>();
-                
-                data.add(rs.getString(2)); //service name
-                data.add(rs.getString(3)); //charges
+
+                data.add(rs.getString(1)); //service name
+                data.add(rs.getString(2)); //charges
+                data.add("Update");
+                data.add("Delete");
                 healthServices.add(data);
             }
 
-
-
             return healthServices;
-        }catch(SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return null;
     }
-     
-     
-    public Vector getEmergencyServicesData()
-    {
-        try{
-            Vector<Vector<String>> healthServices = new Vector<Vector<String>>();
-            PreparedStatement pre = con.prepareStatement("select * from emer_svcs");
 
+    public Vector getAllServices() {
+        try {
+            Vector<Vector<String>> allServices = new Vector<Vector<String>>();
+            PreparedStatement pre = con.prepareStatement("call GetAllServices()");
             ResultSet rs = pre.executeQuery();
 
-            while(rs.next())
-            {
+            while (rs.next()) {
                 Vector<String> data = new Vector<String>();
-                
+                data.add(rs.getString(1));//serviceID
                 data.add(rs.getString(2)); //service name
                 data.add(rs.getString(3)); //charges
-                healthServices.add(data);
+                data.add(rs.getString(4)); //service_Type_id
+                allServices.add(data);
             }
 
-
-
-            return healthServices;
-        }catch(SQLException e)
-        {
+            return allServices;
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return null;
     }
-    
-     public Vector getOtherServicesData()
-    {
-        try{
-            Vector<Vector<String>> healthServices = new Vector<Vector<String>>();
-            PreparedStatement pre = con.prepareStatement("select * from other_services");
 
-            ResultSet rs = pre.executeQuery();
-
-            while(rs.next())
-            {
-                Vector<String> data = new Vector<String>();
-                
-                data.add(rs.getString(2)); //service name
-                data.add(rs.getString(3)); //charges
-                healthServices.add(data);
-            }
-
-
-
-            return healthServices;
-        }catch(SQLException e)
-        {
-            e.printStackTrace();
-        }
-        
-        return null;
-    }
-    
-    public Vector getIndoorPatientServicesData()
-    {
-        try{
-            Vector<Vector<String>> healthServices = new Vector<Vector<String>>();
-            PreparedStatement pre = con.prepareStatement("select * from indoor_patient");
-
-            ResultSet rs = pre.executeQuery();
-
-            while(rs.next())
-            {
-                Vector<String> data = new Vector<String>();
-                
-                data.add(rs.getString(2)); //service name
-                data.add(rs.getString(3)); //charges
-                healthServices.add(data);
-            }
-
-
-
-            return healthServices;
-        }catch(SQLException e)
-        {
-            e.printStackTrace();
-        }
-        
-        return null;
-    }
-      
-     
-     
-     public Vector searchPatient(String firstName,String lastName,int nic)
-     {
-           try{
+    public Vector searchPatient(String firstName, String lastName, int nic) {
+        try {
             Vector<Vector<Object>> search = new Vector<Vector<Object>>();
-            PreparedStatement pre = con.prepareStatement("select * from patient_info where first_name like '%"+firstName+"%' or last_name like '%"+lastName+"%' or nic like '%"+nic+"%'");
+            PreparedStatement pre = con.prepareStatement("call searchPatients(?,?,?)");
+
+            if (firstName.equals("") || firstName == null) {
+                pre.setNull(1, Types.CHAR);
+            } else {
+
+                pre.setString(1, firstName);
+            }
+
+            if (lastName.equals("") || lastName == null) {
+                pre.setNull(2, Types.CHAR);
+            } else {
+
+                pre.setString(2, lastName);
+            }
+
+            pre.setLong(3, nic);
 
             ResultSet rs = pre.executeQuery();
-       
-            while(rs.next())
-            {
+
+            while (rs.next()) {
                 Vector<Object> data = new Vector<Object>();
-                
-                
+
                 data.add(rs.getString(1)); //ID
                 data.add(Boolean.FALSE);//CHoice
                 data.add(rs.getString(2)); //first name
@@ -493,33 +314,23 @@ public class DAO {
                 search.add(data);
             }
 
- 
-
             return search;
-        }catch(SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+
         return null;
-     }
-     
-     
-     
-     
-     
-     
-     public void closeConnection() throws SQLException
-     {
-         /*Close the connection after use (MUST)*/
-        try
-        {
-            if(con!=null)
-            con.close();
-        }
-        catch(SQLException e){
+    }
+
+    public void closeConnection() throws SQLException {
+        /*Close the connection after use (MUST)*/
+        try {
+            if (con != null) {
+                con.close();
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-         
-     }
+
+    }
 }

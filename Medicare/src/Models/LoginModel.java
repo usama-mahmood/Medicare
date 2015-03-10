@@ -10,6 +10,7 @@ package Models;
  * @author Usama Mahmood
  */
 public class LoginModel {
+
     String username;
     String password;
 
@@ -33,6 +34,5 @@ public class LoginModel {
     public void setPassword(String password) {
         this.password = password;
     }
-    
-    
+
 }

@@ -14,15 +14,14 @@ public class PatientInfoModel {
     Long nic;
     String firstName;//requred
     String lastName;//requred
-    int zakat;
+
     Long phoneNum;
     String address;
 
-    public PatientInfoModel(Long nic, String firstName, String lastName, int zakat) {
+    public PatientInfoModel(Long nic, String firstName, String lastName) {
         this.nic = nic;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.zakat = zakat;
 
     }
 
@@ -48,14 +47,6 @@ public class PatientInfoModel {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public int getZakat() {
-        return zakat;
-    }
-
-    public void setZakat(int zakat) {
-        this.zakat = zakat;
     }
 
 }
